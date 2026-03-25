@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Графический диктант</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{min-height:100%;height:-webkit-fill-available}
+body{
+  min-height:100vh;min-height:-webkit-fill-available;
+  width:100%;overflow:hidden;
+  background:#120818;
+  font-family:'Nunito','Segoe UI',Arial,sans-serif;
+  color:#fff;
+  position:fixed;top:0;left:0;right:0;bottom:0;
+}
+.screen{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;transition:opacity .22s}
+.screen.hidden{opacity:0;pointer-events:none}
+
+#screen-menu{background:#120818;overflow-y:auto;-webkit-overflow-scrolling:touch;align-items:stretch;}
+.menu-inner{display:flex;flex-direction:column;align-items:center;padding:36px 18px 32px;width:100%;}
+.menu-logo{font-size:40px;margin-bottom:6px;line-height:1}
+.menu-title{font-size:24px;font-weight:900;background:linear-gradient(135deg,#ff6bb3,#e040fb);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px;letter-spacing:-.3px;}
+.menu-sub{font-size:13px;color:#9471a8;font-weight:600;margin-bottom:24px}
+.menu-xp-wrap{width:100%;margin-bottom:28px}
+.menu-xp-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.menu-xp-title{font-size:11px;font-weight:800;color:#7a5585;text-transform:uppercase;letter-spacing:.7px}
+.menu-xp-count{font-size:13px;font-weight:900;color:#ff6bb3}
+.menu-xp-outer{position:relative;padding-top:20px}
+.menu-xp-milestones{position:absolute;top:0;left:0;width:100%;display:flex;align-items:flex-end;pointer-events:none;height:20px;}
+.menu-xp-ms{position:absolute;display:flex;flex-direction:column;align-items:center;transform:translateX(-50%);transition:filter .35s, transform .35s;}
+.menu-xp-ms .ms-star{font-size:14px;line-height:1;filter:grayscale(1) brightness(.45);transition:filter .35s,transform .35s}
+.menu-xp-ms.lit .ms-star{filter:none;transform:scale(1.2)}
+.menu-xp-ms .ms-tick{width:2px;height:6px;background:#3a1f4a;border-radius:1px;margin-top:1px;transition:background .35s}
+.menu-xp-ms.lit .ms-tick{background:#e040fb}
+.menu-xp-track{width:100%;height:14px;background:#1e0d28;border-radius:7px;border:1.5px solid #3a1f4a;overflow:hidden;}
+.menu-xp-fill{height:100%;border-radius:7px;background:linear-gradient(90deg,#c026d3,#e040fb,#ff6bb3);transition:width .6s cubic-bezier(.34,1.1,.64,1);min-width:0;position:relative;overflow:hidden;}
+.menu-xp-fill::after{content:'';position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent);animation:bar-shimmer 2.5s linear infinite;}
+.sec-label{width:100%;font-size:11px;font-weight:800;color:#6b4478;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;padding-left:2px;display:flex;align-items:center;gap:6px;}
+.sec-label::after{content:'';flex:1;height:1px;background:#2a1535}
+.grid-list{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;margin-bottom:24px}
+.fig-btn{background:#1e0d28;border:2px solid #3a1f4a;border-radius:20px;padding:16px 6px 13px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;position:relative;overflow:hidden;transition:transform .12s cubic-bezier(.34,1.56,.64,1),border-color .12s,box-shadow .12s;-webkit-user-select:none;user-select:none;}
+.fig-btn:hover{border-color:#e040fb;transform:translateY(-3px);box-shadow:0 8px 24px rgba(224,64,251,.2);}
+.fig-btn:active{transform:scale(.91);box-shadow:none}
+.fig-btn .fe{font-size:30px;line-height:1;margin-bottom:4px}
+.fig-btn .fl{font-size:11px;font-weight:800;color:#f0d6f5;text-align:center;line-height:1.2}
+.fig-btn .fc{font-size:9px;color:#7a5585;margin-top:2px;font-weight:600}
+.fig-btn.done{background:#1c0a2a;border-color:#c026d3}
+.fig-btn.done:hover{border-color:#e879f9;box-shadow:0 8px 24px rgba(192,38,211,.25)}
+.fig-btn.done .fl{color:#f0abfc}
+.fig-btn.done .fc{color:#a855f7;font-weight:700}
+.fig-btn .done-badge{position:absolute;top:8px;right:8px;width:18px;height:18px;background:#a855f7;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#fff;}
+.fig-btn .fbar{position:absolute;bottom:0;left:0;height:3px;border-radius:0 0 18px 18px;background:linear-gradient(90deg,#e040fb,#ff6bb3);transition:width .4s ease;}
+
+#screen-game{background:#120818;justify-content:flex-start}
+.progress-wrap{width:100%;height:18px;background:#1e0d28;flex-shrink:0;position:relative;border-bottom:1px solid #3a1f4a;}
+.progress-fill{height:100%;width:0;background:linear-gradient(90deg,#c026d3,#e040fb,#ff6bb3);transition:width .5s cubic-bezier(.34,1.1,.64,1);position:relative;overflow:hidden;}
+.progress-fill::after{content:'';position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.35),transparent);animation:bar-shimmer 2s linear infinite;}
+@keyframes bar-shimmer{0%{left:-60%}100%{left:160%}}
+.progress-stars{position:absolute;top:0;left:0;height:100%;display:flex;align-items:center;padding:0 6px;gap:3px;pointer-events:none;z-index:2;}
+
+/* ★ FIXED: progress-star lit state now shows gold */
+.progress-star{font-size:9px;filter:grayscale(1) brightness(.4);transition:filter .3s,transform .3s;}
+.progress-star.lit{filter:none;transform:scale(1.3);animation:star-pop .4s cubic-bezier(.34,1.56,.64,1);}
+@keyframes star-pop{0%{transform:scale(0.5)}60%{transform:scale(1.5)}100%{transform:scale(1.3)}}
+
+.game-header{width:100%;display:flex;align-items:center;gap:10px;padding:10px 14px 4px;flex-shrink:0;}
+.back-btn{background:#1e0d28;border:1.5px solid #3a1f4a;color:#f0d6f5;width:36px;height:36px;border-radius:12px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:900;transition:background .12s,border-color .12s,transform .1s;}
+.back-btn:hover{background:#2d1040;border-color:#e040fb}
+.back-btn:active{transform:scale(.88)}
+.game-title{font-size:16px;font-weight:900;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.3px;}
+.step-info{font-size:11px;font-weight:800;background:#1e0d28;border:1.5px solid #3a1f4a;padding:4px 9px;border-radius:10px;color:#9471a8;flex-shrink:0;}
+.step-banner{width:100%;padding:6px 14px 8px;flex-shrink:0;display:flex;align-items:center;gap:10px;}
+.step-arrow{font-size:22px;width:48px;height:48px;min-width:48px;display:flex;align-items:center;justify-content:center;border-radius:14px;font-weight:900;border:2px solid transparent;transition:transform .15s cubic-bezier(.34,1.56,.64,1),box-shadow .15s,border-color .15s;cursor:default;}
+.step-arrow:hover{transform:scale(1.18);box-shadow:0 4px 20px rgba(0,0,0,.4)}
+@keyframes shake{0%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}100%{transform:translateX(0)}}
+.shake{animation:shake .32s ease}
+.step-texts{flex:1;min-width:0}
+.step-text{font-size:15px;font-weight:800;color:#f5e6ff;line-height:1.3}
+.step-hint-txt{font-size:11px;color:#7a5585;margin-top:3px;font-weight:600}
+.steps-row{width:100%;padding:4px 12px 6px;display:flex;gap:5px;overflow-x:auto;flex-shrink:0;scrollbar-width:none;}
+.steps-row::-webkit-scrollbar{display:none}
+.s-chip{display:inline-flex;align-items:center;gap:1px;padding:4px 8px;border-radius:8px;font-size:11px;font-weight:800;border:1.5px solid #2d1040;flex-shrink:0;background:#1a0922;color:#5a3568;transition:all .15s;}
+.s-chip.done{color:#a855f7;border-color:#7e22ce55;background:#1c0a2a}
+.s-chip.cur{background:#2d1040;color:#f5e6ff;border-color:#e040fb;transform:scale(1.06)}
+#canvas-wrap{flex:1;width:100%;position:relative;min-height:0;overflow:hidden;touch-action:none}
+#canvas-wrap canvas{position:absolute;top:0;left:0;width:100%;height:100%}
+#hint-arrow{position:absolute;pointer-events:none;z-index:20;font-size:32px;opacity:0;transition:opacity .18s;filter:drop-shadow(0 0 10px rgba(255,107,179,.8));transform:translate(-50%,-50%);}
+#hint-arrow.show{opacity:1}
+#praise{position:absolute;top:38%;left:50%;transform:translate(-50%,-50%) scale(0);background:linear-gradient(135deg,#e040fb,#ff6bb3);color:#fff;border-radius:28px;padding:13px 24px;font-size:15px;font-weight:900;pointer-events:none;opacity:0;letter-spacing:-.2px;transition:transform .28s cubic-bezier(.34,1.56,.64,1),opacity .2s;white-space:nowrap;z-index:10;max-width:88vw;text-align:center;box-shadow:0 8px 32px rgba(224,64,251,.45);}
+#praise.show{transform:translate(-50%,-50%) scale(1);opacity:1}
+
+#screen-win{background:#120818}
+#win-canvas-full{position:absolute;top:0;left:0;width:100%;height:100%}
+.win-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:max(36px,env(safe-area-inset-bottom,24px));background:linear-gradient(to top,rgba(18,8,24,.97) 0%,rgba(18,8,24,.5) 55%,transparent 100%);}
+.win-emoji-big{font-size:58px;margin-bottom:8px;filter:drop-shadow(0 0 20px rgba(255,107,179,.5))}
+.win-title{font-size:24px;font-weight:900;margin-bottom:6px;text-align:center;letter-spacing:-.4px;background:linear-gradient(135deg,#ff6bb3,#e040fb);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.win-sub{font-size:13px;color:#9471a8;font-weight:600;margin-bottom:24px;text-align:center;padding:0 28px}
+.win-btns{display:flex;gap:10px}
+.btn{padding:14px 30px;border-radius:18px;border:none;font-size:15px;font-weight:900;cursor:pointer;background:linear-gradient(135deg,#e040fb,#ff6bb3);color:#fff;letter-spacing:-.2px;box-shadow:0 4px 20px rgba(224,64,251,.4);transition:transform .12s cubic-bezier(.34,1.56,.64,1),box-shadow .12s;font-family:inherit;}
+.btn:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 8px 28px rgba(224,64,251,.55)}
+.btn:active{transform:scale(.93);box-shadow:none}
+.btn.sec{background:#1e0d28;color:#f0d6f5;box-shadow:none;border:2px solid #3a1f4a;}
+.btn.sec:hover{background:#2d1040;border-color:#e040fb;box-shadow:0 4px 16px rgba(224,64,251,.15)}
+.star{position:fixed;pointer-events:none;font-size:22px;animation:fly 1.2s ease-out forwards;z-index:200}
+@keyframes fly{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(.3)}}
+</style>
+</head>
+<body>
+
+<div id="screen-menu" class="screen">
+  <div class="menu-inner">
+    <div class="menu-logo">✏️</div>
+    <div class="menu-title">Графический диктант</div>
+    <div class="menu-sub">Рисуй пальцем по клеточкам</div>
+    <div class="menu-xp-wrap" id="menu-xp-wrap">
+      <div class="menu-xp-label">
+        <span class="menu-xp-title">Прогресс</span>
+        <span class="menu-xp-count" id="menu-xp-count">0 / 19</span>
+      </div>
+      <div class="menu-xp-outer">
+        <div class="menu-xp-milestones" id="menu-xp-stars"></div>
+        <div class="menu-xp-track">
+          <div class="menu-xp-fill" id="menu-xp-fill" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+    <div class="sec-label">Выбери задание</div>
+    <div class="grid-list" id="fig-list"></div>
+    <div class="sec-label" id="lbl-done" style="display:none">Пройдено</div>
+    <div class="grid-list" id="fig-list-done"></div>
+  </div>
+</div>
+
+<div id="screen-game" class="screen hidden">
+  <div class="progress-wrap">
+    <div class="progress-fill" id="progress-fill"></div>
+    <div class="progress-stars" id="progress-stars"></div>
+  </div>
+  <div class="game-header">
+    <button class="back-btn" id="back-btn">←</button>
+    <div class="game-title" id="game-title"></div>
+    <div class="step-info" id="step-info"></div>
+  </div>
+  <div class="step-banner">
+    <div class="step-arrow" id="step-arrow"></div>
+    <div class="step-texts">
+      <div class="step-text" id="step-text"></div>
+      <div class="step-hint-txt" id="step-hint"></div>
+    </div>
+  </div>
+  <div class="steps-row" id="steps-row"></div>
+  <div id="canvas-wrap">
+    <canvas id="grid-canvas"></canvas>
+    <canvas id="draw-canvas"></canvas>
+    <div id="hint-arrow"></div>
+    <div id="praise"></div>
+  </div>
+</div>
+
+<div id="screen-win" class="screen hidden">
+  <canvas id="win-canvas-full"></canvas>
+  <div class="win-overlay">
+    <div class="win-emoji-big" id="win-emoji"></div>
+    <div class="win-title" id="win-title"></div>
+    <div class="win-sub" id="win-sub"></div>
+    <div class="win-btns">
+      <button class="btn" id="retry-btn">Ещё раз</button>
+      <button class="btn sec" id="menu-btn2">В меню</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+
+var ARR=['\u2192\uFE0E','\u2190\uFE0E','\u2191\uFE0E','\u2193\uFE0E','\u2197\uFE0E','\u2198\uFE0E','\u2199\uFE0E','\u2196\uFE0E'];
+var ARR_RU=['вправо','влево','вверх','вниз','вправо-вверх','вправо-вниз','влево-вниз','влево-вверх'];
+var DIRS=[[1,0],[-1,0],[0,-1],[0,1],[1,-1],[1,1],[-1,1],[-1,-1]];
+var COLORS=['#f97316','#c2410c','#1d4ed8','#b45309','#d97706','#dc2626','#f59e0b','#8b5cf6','#6b7280','#92400e','#b45309','#6d28d9','#ec4899','#0ea5e9','#64748b','#f472b6','#0369a1','#9333ea','#3b82f6'];
+var PRAISE_POOL=['Так держать! 💪','Супер! ⭐','Молодец!','Отлично! 🎉','Класс!','Ура! 🎊','Огонь! 🔥','Умница!','Браво! 👏','Щенячий патруль гордится тобой! 🐾','Ты как Эльза — всё под контролем! ❄️','Симба говорит: молодец! 🦁','Карлсон в восторге! ✈️','Дракон Беззубик машет крыльями! 🐉','Даже Лунтик удивился! 🌙','Фиксики починили бы хуже! 🔧','Смешарики танцуют за тебя! 🎵','Маша и Медведь смотрят и завидуют!','Ты настоящий художник! 🎨','Почти видно рисунок! 👀','Уже красиво получается!','Ещё чуть-чуть — и шедевр! 🖼️','Линия ровная как рельсы! 🚂','Такой мастер! 🏆','Продолжай — ты справляешься!','Ещё немного! ✨'];
+var PRAISE_LATE=['Финишная прямая! 🏁','Почти готово, не останавливайся!','Последние штрихи! 🖌️','Вот-вот увидишь что получилось! 👀'];
+
+function parseText(t){
+  var steps=[],parts=t.split(',');
+  for(var i=0;i<parts.length;i++){
+    var p=parts[i].trim().toLowerCase(),m=p.match(/^(\d+)\s+(.+)$/);
+    if(!m)continue;
+    var n=parseInt(m[1]),d=m[2].trim(),dir=-1;
+    if(d==='клетка вправо'||d==='клетки вправо'||d==='клеток вправо')dir=0;
+    else if(d==='клетка влево'||d==='клетки влево'||d==='клеток влево')dir=1;
+    else if(d==='клетка вверх'||d==='клетки вверх'||d==='клеток вверх')dir=2;
+    else if(d==='клетка вниз'||d==='клетки вниз'||d==='клеток вниз')dir=3;
+    else if(d.indexOf('вправо вверх')>=0)dir=4;
+    else if(d.indexOf('вправо вниз')>=0)dir=5;
+    else if(d.indexOf('влево вниз')>=0)dir=6;
+    else if(d.indexOf('влево вверх')>=0)dir=7;
+    if(dir>=0)steps.push([dir,n]);
+  }
+  return steps;
+}
+
+var ALL=[
+{name:'Котик',emoji:'🐱',steps:[[0,2],[4,2],[5,1],[3,4],[6,2],[0,5],[5,1],[2,1],[0,1],[2,3],[0,1],[2,2],[0,2],[3,4],[1,1],[3,1],[1,1],[3,1],[1,1],[3,6],[1,2],[4,1],[7,2],[1,4],[6,2],[3,1],[1,2],[4,1],[2,2],[7,1],[2,3],[7,2],[2,4],[4,1],[5,2]]},
+{name:'Рыбка',emoji:'🐟',steps:[[4,1],[2,1],[4,1],[7,1],[2,1],[7,1],[1,3],[5,1],[3,1],[5,1],[6,1],[3,1],[6,1],[1,3],[4,1],[2,1],[4,1],[7,1],[2,1],[7,2],[4,2],[0,1],[4,1],[0,4],[5,2],[3,2],[5,2],[4,1],[3,1],[6,1],[0,1],[3,1],[1,1],[6,3],[1,2],[3,2],[6,1],[1,3],[2,1],[4,2],[1,3],[7,3],[6,1],[3,1],[6,3],[2,4],[4,2],[7,2],[2,4],[5,3],[3,1],[5,1],[4,3],[0,7],[5,1]]},
+{name:'Машина',emoji:'🚗',steps:[[2,3],[0,9],[3,4],[1,2],[6,1],[1,1],[7,1],[1,8],[6,1],[1,1],[7,1],[7,2],[2,1],[0,1],[2,1],[4,1],[0,2],[2,2],[4,1],[0,3],[3,5],[0,1]]},
+{name:'Лиса',emoji:'🦊',steps:[[5,5],[3,1],[4,1],[7,2],[2,3],[4,2],[0,2],[4,1],[3,2],[6,1],[3,1],[5,2],[3,2],[6,1],[3,1],[6,2],[1,1],[7,1],[6,1],[1,4],[7,1],[6,1],[1,2],[4,1],[2,3],[7,1],[2,3],[4,1],[1,2],[7,3],[2,1],[0,3],[4,2],[2,2],[5,2],[0,1],[2,2],[5,2],[3,4],[6,2]]},
+{name:'Цыплёнок',emoji:'🐥',steps:[[4,4],[0,2],[5,2],[3,1],[6,2],[1,7],[4,1],[7,2],[2,2],[0,1],[5,1],[4,2],[2,2],[4,3],[0,4],[5,3],[4,1],[0,2],[6,2],[0,2],[6,1],[1,1],[3,2],[6,1],[3,1],[6,4],[5,2],[0,2],[3,1],[1,2],[7,3],[1,2],[3,3],[0,2],[3,1],[1,3],[2,4],[1,1],[7,2]]},
+{name:'Домик',emoji:'🏠',color:'#0369a1',pts:[[0,16],[0,6],[1,6],[1,4],[3,4],[3,6],[4,6],[9,1],[14,6],[15,6],[15,4],[17,4],[17,6],[18,6],[18,16],[14,16],[14,10],[12,10],[12,16],[0,16]]},
+{name:'Уточка',emoji:'🐤',text:'2 клетки вправо, 1 клетка вверх, 1 клетка вправо, 1 клетка вверх, 4 клетки вправо, 1 клетка вниз, 1 клетка вправо, 9 клеток вниз, 9 клеток вправо, 2 клетки вверх, 2 клетки вправо, 2 клетки вверх, 1 клетка вправо, 8 клеток вниз, 1 клетка влево, 1 клетка вниз, 1 клетка влево, 1 клетка вниз, 1 клетка влево, 1 клетка вниз, 9 клеток влево, 1 клетка вверх, 2 клетки влево, 1 клетка вверх, 2 клетки влево, 5 клеток вверх, 1 клетка вправо, 6 клеток вверх, 5 клеток влево, 2 клетки вверх'},
+{name:'Мышка',emoji:'🐭',text:'2 клетки по диагонали вправо вверх, 1 клетка вправо, 1 клетка по диагонали влево вверх, 1 клетка вверх, 1 клетка по диагонали вправо вверх, 1 клетка вправо, 1 клетка по диагонали вправо вниз, 1 клетка по диагонали вправо вверх, 1 клетка вправо, 1 клетка по диагонали вправо вниз, 1 клетка вниз, 1 клетка по диагонали влево вниз, 5 клеток вправо, 3 клетки по диагонали вправо вниз, 3 клетки вправо, 1 клетка по диагонали вправо вниз, 5 клеток влево, 1 клетка по диагонали влево вверх, 1 клетка влево, 2 клетки вниз, 2 клетки влево, 1 клетка по диагонали вправо вверх, 2 клетки влево, 1 клетка вниз, 2 клетки влево, 1 клетка по диагонали вправо вверх, 2 клетки влево, 1 клетка вниз, 2 клетки влево, 1 клетка по диагонали вправо вверх, 2 клетки влево, 1 клетка вниз, 2 клетки влево, 1 клетка по диагонали вправо вверх, 1 клетка вверх, 1 клетка влево, 1 клетка по диагонали влево вверх'},
+{name:'Слонёнок',emoji:'🐘',text:'2 клетки вниз, 1 клетка по диагонали вправо вниз, 2 клетки вправо, 2 клетки по диагонали вправо вверх, 3 клетки вверх, 2 клетки по диагонали влево вверх, 3 клетки влево, 2 клетки по диагонали влево вниз, 2 клетки вниз, 2 клетки по диагонали влево вниз, 1 клетка влево, 1 клетка по диагонали влево вверх, 1 клетка вверх, 2 клетки по диагонали вправо вверх, 1 клетка по диагонали влево вверх, 2 клетки по диагонали влево вниз, 2 клетки вниз, 2 клетки по диагонали вправо вниз, 2 клетки вправо, 1 клетка по диагонали вправо вверх, 2 клетки по диагонали вправо вниз, 4 клетки вниз, 2 клетки вправо, 2 клетки вверх, 1 клетка по диагонали вправо вверх, 1 клетка по диагонали вправо вниз, 3 клетки вправо, 1 клетка по диагонали вправо вверх, 1 клетка по диагонали вправо вниз, 2 клетки вниз, 2 клетки вправо, 2 клетки вверх, 2 клетки по диагонали вправо вверх, 2 клетки вверх, 1 клетка вправо, 4 клетки по диагонали влево вверх, 5 клеток влево'},
+{name:'Медвежонок',emoji:'🐻',text:'1 клетка по диагонали вправо вверх, 1 клетка вправо, 1 клетка по диагонали вправо вниз, 1 клетка по диагонали вправо вверх, 4 клетки вправо, 1 клетка по диагонали вправо вниз, 1 клетка по диагонали вправо вверх, 1 клетка вправо, 1 клетка по диагонали вправо вниз, 1 клетка вниз, 1 клетка по диагонали влево вниз, 3 клетки вниз, 1 клетка по диагонали влево вниз, 1 клетка по диагонали вправо вниз, 3 клетки по диагонали вправо вверх, 1 клетка вправо, 1 клетка по диагонали вправо вниз, 1 клетка вниз, 4 клетки по диагонали влево вниз, 5 клеток вниз, 1 клетка по диагонали влево вниз, 2 клетки по диагонали вправо вниз, 1 клетка вниз, 1 клетка по диагонали влево вниз, 1 клетка влево, 3 клетки по диагонали влево вверх, 4 клетки влево, 3 клетки по диагонали влево вниз, 1 клетка влево, 1 клетка по диагонали влево вверх, 1 клетка вверх, 2 клетки по диагонали вправо вверх, 1 клетка по диагонали влево вверх, 5 клеток вверх, 4 клетки по диагонали влево вверх, 1 клетка вверх, 1 клетка по диагонали вправо вверх, 1 клетка вправо, 3 клетки по диагонали вправо вниз, 1 клетка по диагонали вправо вверх, 1 клетка по диагонали влево вверх, 3 клетки вверх, 1 клетка по диагонали влево вверх, 1 клетка вверх'},
+{name:'Собачка',emoji:'🐶',text:'4 клетки вниз, 1 клетка по диагонали вправо вниз, 2 клетки вправо, 1 клетка по диагонали вправо вверх, 5 клеток вверх, 6 клеток вправо, 1 клетка по диагонали вправо вниз, 1 клетка по диагонали вправо вверх, 1 клетка по диагонали влево вверх, 1 клетка по диагонали вправо вверх, 1 клетка по диагонали влево вверх, 1 клетка вверх, 1 клетка по диагонали вправо вверх, 2 клетки вправо, 1 клетка по диагонали вправо вниз, 1 клетка вниз, 1 клетка по диагонали влево вниз, 2 клетки вниз, 1 клетка по диагонали влево вниз, 9 клеток вниз, 1 клетка по диагонали влево вниз, 2 клетки влево, 1 клетка вверх, 1 клетка по диагонали вправо вверх, 1 клетка вверх, 1 клетка по диагонали влево вверх, 6 клеток влево, 2 клетки по диагонали влево вниз, 1 клетка вниз, 1 клетка по диагонали влево вниз, 2 клетки влево, 1 клетка вверх, 1 клетка по диагонали вправо вверх, 2 клетки вверх, 2 клетки по диагонали влево вверх, 3 клетки вверх, 1 клетка по диагонали влево вверх, 4 клетки влево, 2 клетки по диагонали влево вверх, 2 клетки вверх, 1 клетка влево, 1 клетка по диагонали влево вверх, 1 клетка вверх, 1 клетка по диагонали вправо вверх, 1 клетка вправо, 1 клетка по диагонали вправо вниз, 1 клетка вниз, 5 клеток вправо, 2 клетки по диагонали вправо вверх, 3 клетки вправо, 2 клетки по диагонали вправо вниз, 4 клетки вниз'},
+{name:'Тигр',emoji:'🐯',text:'2 клетки вправо, 2 клетки вниз, 4 клетки вправо, 2 клетки вверх, 2 клетки вправо, 4 клетки вниз, 9 клеток вправо, 4 клетки вверх, 2 клетки влево, 2 клетки вверх, 4 клетки вправо, 9 клеток вниз, 1 клетка влево, 4 клетки вниз, 2 клетки влево, 4 клетки вверх, 1 клетка влево, 4 клетки вниз, 2 клетки влево, 4 клетки вверх, 6 клеток влево, 4 клетки вниз, 2 клетки влево, 4 клетки вверх, 1 клетка влево, 4 клетки вниз, 2 клетки влево, 6 клеток вверх, 2 клетки влево, 5 клеток вверх'},
+{name:'Кролик',emoji:'🐰',text:'1 клетка по диагонали вправо вверх, 2 клетки вправо, 2 клетки по диагонали вправо вниз, 2 клетки вправо, 1 клетка по диагонали вправо вверх, 2 клетки вправо, 1 клетка по диагонали вправо вниз, 2 клетки влево, 1 клетка по диагонали влево вниз, 2 клетки вниз, 1 клетка по диагонали влево вниз, 1 клетка вниз, 1 клетка по диагонали вправо вниз, 4 клетки вправо, 1 клетка по диагонали влево вверх, 1 клетка вверх, 1 клетка по диагонали вправо вверх, 1 клетка вправо, 1 клетка по диагонали вправо вниз, 1 клетка вниз, 1 клетка по диагонали влево вниз, 1 клетка по диагонали вправо вниз, 1 клетка вниз, 2 клетки по диагонали вправо вниз, 2 клетки влево, 1 клетка по диагонали влево вверх, 1 клетка влево, 1 клетка по диагонали вправо вниз, 2 клетки влево, 1 клетка по диагонали влево вверх, 9 клеток влево, 1 клетка по диагонали влево вниз, 2 клетки влево, 2 клетки по диагонали вправо вверх, 2 клетки влево, 2 клетки по диагонали вправо вверх, 3 клетки вправо, 1 клетка по диагонали вправо вверх, 1 клетка вверх, 1 клетка по диагонали влево вверх, 3 клетки вверх, 1 клетка по диагонали влево вверх, 2 клетки влево'},
+{name:'Чебурашка',emoji:'🐭',text:'2 клетки по диагонали вправо вверх, 2 клетки вправо, 2 клетки по диагонали вправо вниз, 2 клетки по диагонали вправо вверх, 4 клетки вправо, 2 клетки по диагонали вправо вниз, 2 клетки по диагонали вправо вверх, 2 клетки вправо, 2 клетки по диагонали вправо вниз, 4 клетки вниз, 2 клетки по диагонали влево вниз, 2 клетки влево, 2 клетки по диагонали влево вверх, 2 клетки по диагонали влево вниз, 4 клетки по диагонали вправо вниз, 1 клетка по диагонали влево вниз, 2 клетки по диагонали влево вверх, 5 клеток вниз, 2 клетки по диагонали вправо вниз, 1 клетка вниз, 4 клетки влево, 5 клеток вверх, 1 клетка по диагонали влево вверх, 1 клетка по диагонали влево вниз, 5 клеток вниз, 4 клетки влево, 1 клетка вверх, 2 клетки по диагонали вправо вверх, 5 клеток вверх, 2 клетки по диагонали влево вниз, 1 клетка по диагонали влево вверх, 4 клетки по диагонали вправо вверх, 2 клетки по диагонали влево вверх, 2 клетки по диагонали влево вниз, 2 клетки влево, 2 клетки по диагонали влево вверх, 4 клетки вверх'},
+{name:'Зайчик',emoji:'🐇',text:'2 клетки по диагонали вправо вверх, 1 клетка вправо, 4 клетки по диагонали вправо вверх, 2 клетки вниз, 2 клетки по диагонали вправо вверх, 3 клетки вниз, 4 клетки по диагонали влево вниз, 1 клетка вниз, 3 клетки по диагонали вправо вниз, 1 клетка вправо, 5 клеток по диагонали вправо вниз, 1 клетка по диагонали вправо вверх, 2 клетки по диагонали вправо вниз, 2 клетки по диагонали влево вниз, 1 клетка по диагонали влево вверх, 3 клетки по диагонали влево вниз, 7 клеток влево, 1 клетка по диагонали вправо вверх, 1 клетка по диагонали влево вверх, 2 клетки по диагонали влево вниз, 4 клетки влево, 2 клетки по диагонали вправо вверх, 2 клетки вправо, 1 клетка вверх, 3 клетки по диагонали влево вверх, 3 клетки вверх, 3 клетки по диагонали вправо вверх, 2 клетки по диагонали влево вверх, 1 клетка вверх'},
+{name:'Фламинго',emoji:'🦩',text:'1 клетка по диагонали вправо вверх, 2 клетки вправо, 2 клетки по диагонали вправо вниз, 6 клеток вниз, 2 клетки по диагонали вправо вниз, 7 клеток вправо, 1 клетка по диагонали вправо вниз, 1 клетка вправо, 1 клетка по диагонали вправо вниз, 1 клетка вправо, 1 клетка по диагонали вправо вниз, 2 клетки по диагонали влево вниз, 5 клеток влево, 6 клеток вниз, 1 клетка влево, 6 клеток вверх, 2 клетки по диагонали влево вниз, 1 клетка по диагонали вправо вниз, 1 клетка по диагонали влево вниз, 1 клетка по диагонали влево вверх, 1 клетка вверх, 2 клетки по диагонали вправо вверх, 6 клеток по диагонали влево вверх, 7 клеток вверх, 1 клетка по диагонали влево вверх, 2 клетки влево, 1 клетка по диагонали влево вниз, 1 клетка вверх'},
+{name:'Кораблик',emoji:'⛵',text:'8 клеток вправо, 1 клетка вверх, 5 клеток влево, 2 клетки вверх, 1 клетка вправо, 2 клетки вверх, 1 клетка вправо, 1 клетка вверх, 1 клетка вправо, 2 клетки вверх, 1 клетка вправо, 1 клетка вверх, 1 клетка вправо, 2 клетки вверх, 2 клетки вправо, 5 клеток вниз, 6 клеток вниз, 8 клеток вправо, 1 клетка вниз, 1 клетка влево, 1 клетка вниз, 1 клетка влево, 1 клетка вниз, 7 клеток влево, 7 клеток влево, 1 клетка вверх, 1 клетка влево, 1 клетка вверх, 1 клетка влево, 1 клетка вверх'},
+{name:'Осьминог',emoji:'🐙',text:'4 клетки по диагонали вправо вверх, 7 клеток вправо, 4 клетки по диагонали вправо вниз, 3 клетки вниз, 3 клетки по диагонали влево вниз, 2 клетки по диагонали вправо вниз, 2 клетки вниз, 2 клетки по диагонали вправо вниз, 2 клетки влево, 2 клетки по диагонали влево вверх, 2 клетки вверх, 2 клетки по диагонали влево вверх, 4 клетки вниз, 2 клетки по диагонали вправо вниз, 2 клетки влево, 2 клетки по диагонали влево вверх, 4 клетки вверх, 1 клетка влево, 4 клетки вниз, 2 клетки по диагонали влево вниз, 2 клетки влево, 2 клетки по диагонали вправо вверх, 4 клетки вверх, 2 клетки по диагонали влево вниз, 2 клетки вниз, 2 клетки по диагонали влево вниз, 2 клетки влево, 2 клетки по диагонали вправо вверх, 2 клетки вверх, 2 клетки по диагонали вправо вверх, 3 клетки по диагонали влево вверх, 3 клетки вверх'},
+{name:'Снеговик',emoji:'⛄',text:'1 клетка вправо, 1 клетка вверх, 2 клетки вправо, 1 клетка вниз, 1 клетка вправо, 2 клетки вниз, 1 клетка влево, 1 клетка вниз, 1 клетка вправо, 1 клетка вниз, 1 клетка вправо, 1 клетка вниз, 1 клетка вправо, 1 клетка вверх, 1 клетка вправо, 1 клетка вверх, 1 клетка вправо, 1 клетка вниз, 1 клетка влево, 1 клетка вниз, 1 клетка влево, 1 клетка вниз, 2 клетки влево, 1 клетка вниз, 1 клетка влево, 1 клетка вниз, 3 клетки вправо, 1 клетка вниз, 1 клетка вправо, 2 клетки вниз, 1 клетка влево, 1 клетка вниз, 1 клетка влево, 1 клетка вниз, 6 клеток влево, 1 клетка вверх, 1 клетка влево, 1 клетка вверх, 1 клетка влево, 2 клетки вверх, 1 клетка вправо, 1 клетка вверх, 3 клетки вправо, 1 клетка вверх, 1 клетка влево, 1 клетка вверх, 2 клетки влево, 1 клетка вверх, 1 клетка влево, 1 клетка вверх, 1 клетка влево, 1 клетка вверх, 1 клетка вправо, 1 клетка вниз, 1 клетка вправо, 1 клетка вниз, 1 клетка вправо, 1 клетка вверх, 1 клетка вправо, 1 клетка вверх, 1 клетка вправо, 1 клетка вверх, 1 клетка влево, 2 клетки вверх'},
+];
+
+ALL.forEach(function(f,i){
+  f.idx=i;
+  if(!f.color)f.color=COLORS[i];
+  if(!f.steps&&f.pts){
+    f.steps=[];
+    for(var j=0;j<f.pts.length-1;j++){
+      var dx=f.pts[j+1][0]-f.pts[j][0],dy=f.pts[j+1][1]-f.pts[j][1];
+      var ax=Math.abs(dx),ay=Math.abs(dy),dir;
+      if(ay===0&&dx>0)dir=0;else if(ay===0&&dx<0)dir=1;
+      else if(ax===0&&dy<0)dir=2;else if(ax===0&&dy>0)dir=3;
+      else if(ax===ay&&dx>0&&dy<0)dir=4;else if(ax===ay&&dx>0&&dy>0)dir=5;
+      else if(ax===ay&&dx<0&&dy>0)dir=6;else dir=7;
+      f.steps.push([dir,Math.max(ax,ay)]);
+    }
+  }
+  if(!f.steps)f.steps=parseText(f.text||'');
+  f.totalSteps=f.steps.length;
+});
+
+// ── WEB SPEECH API (TTS) — умный выбор голоса ──
+var _bestVoice=null;
+var _voicesReady=false;
+
+function _pickBestVoice(){
+  var voices=window.speechSynthesis.getVoices();
+  if(!voices||!voices.length)return null;
+  var ruVoices=voices.filter(function(v){return v.lang&&v.lang.toLowerCase().startsWith('ru');});
+  if(!ruVoices.length)return voices.find(function(v){return v.lang&&v.lang.startsWith('ru');})||null;
+
+  // Приоритеты: ищем женский/детский голос по имени
+  // Порядок приоритетов: Milena (Яндекс, очень приятный) > Irina (Microsoft) >
+  // Google русский женский > любой онлайн > любой локальный
+  var priority=[
+    /milena/i, /irina/i, /alyona/i, /alena/i, /katya/i,
+    /google.*ru/i, /ru.*google/i,
+    /female/i, /woman/i, /girl/i, /жен/i
+  ];
+  for(var p=0;p<priority.length;p++){
+    var found=ruVoices.find(function(v){return priority[p].test(v.name);});
+    if(found)return found;
+  }
+  // Предпочтём онлайн-голос (обычно качественнее)
+  var online=ruVoices.find(function(v){return !v.localService;});
+  if(online)return online;
+  return ruVoices[0];
+}
+
+function speak(text){
+  if(!window.speechSynthesis)return;
+  window.speechSynthesis.cancel();
+  // Небольшая пауза после cancel() — без неё Chrome иногда молчит
+  setTimeout(function(){
+    var utt=new SpeechSynthesisUtterance(text);
+    utt.lang='ru-RU';
+    // Детский эффект: чуть выше тон, чуть медленнее темп
+    utt.pitch=1.35;   // 0–2, обычный=1; выше → детский/мягкий
+    utt.rate=0.88;    // 0.1–10, обычный=1; немного медленнее = разборчивее
+    utt.volume=1;
+    if(!_bestVoice)_bestVoice=_pickBestVoice();
+    if(_bestVoice)utt.voice=_bestVoice;
+    window.speechSynthesis.speak(utt);
+  },60);
+}
+
+if(window.speechSynthesis){
+  var _initVoices=function(){
+    _bestVoice=_pickBestVoice();
+    _voicesReady=true;
+  };
+  window.speechSynthesis.onvoiceschanged=_initVoices;
+  // На некоторых браузерах onvoiceschanged не стреляет — пробуем сразу
+  setTimeout(_initVoices,300);
+}
+
+// ── SOUND ENGINE (Web Audio API) ──
+var _ac=null;
+function ac(){
+  if(!_ac)_ac=new(window.AudioContext||window.webkitAudioContext)();
+  if(_ac.state==='suspended')_ac.resume();
+  return _ac;
+}
+function _note(freq,type,start,dur,vol){
+  var ctx=ac(),o=ctx.createOscillator(),g=ctx.createGain();
+  o.connect(g);g.connect(ctx.destination);
+  o.type=type||'sine';o.frequency.value=freq;
+  g.gain.setValueAtTime(0,ctx.currentTime+start);
+  g.gain.linearRampToValueAtTime(vol||0.2,ctx.currentTime+start+0.008);
+  g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+start+dur);
+  o.start(ctx.currentTime+start);
+  o.stop(ctx.currentTime+start+dur+0.01);
+}
+// helper: vibrato oscillator
+function _vibNote(freq,type,start,dur,vol,vibratoHz,vibratoDepth){
+  var ctx=ac(),o=ctx.createOscillator(),lfo=ctx.createOscillator(),lfoG=ctx.createGain(),g=ctx.createGain();
+  lfo.frequency.value=vibratoHz||5;
+  lfoG.gain.value=vibratoDepth||8;
+  lfo.connect(lfoG);lfoG.connect(o.frequency);
+  o.connect(g);g.connect(ctx.destination);
+  o.type=type||'sine';o.frequency.value=freq;
+  g.gain.setValueAtTime(0,ctx.currentTime+start);
+  g.gain.linearRampToValueAtTime(vol||0.15,ctx.currentTime+start+0.02);
+  g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+start+dur);
+  lfo.start(ctx.currentTime+start);lfo.stop(ctx.currentTime+start+dur+0.01);
+  o.start(ctx.currentTime+start);o.stop(ctx.currentTime+start+dur+0.01);
+}
+// noise burst helper (для животных звуков без файлов)
+function _noise(start,dur,vol,filterFreq){
+  var ctx=ac(),buf=ctx.createBuffer(1,Math.ceil(ctx.sampleRate*dur),ctx.sampleRate);
+  var d=buf.getChannelData(0);
+  for(var i=0;i<d.length;i++)d[i]=(Math.random()*2-1);
+  var src=ctx.createBufferSource(),filt=ctx.createBiquadFilter(),g=ctx.createGain();
+  filt.type='bandpass';filt.frequency.value=filterFreq||800;filt.Q.value=2;
+  src.buffer=buf;src.connect(filt);filt.connect(g);g.connect(ctx.destination);
+  g.gain.setValueAtTime(0,ctx.currentTime+start);
+  g.gain.linearRampToValueAtTime(vol||0.12,ctx.currentTime+start+0.01);
+  g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+start+dur*0.85);
+  src.start(ctx.currentTime+start);src.stop(ctx.currentTime+start+dur+0.01);
+}
+
+var SND={
+  ping:function(){_note(880,'sine',0,0.09,0.22);},
+  wrong:function(){
+    var ctx=ac(),o=ctx.createOscillator(),g=ctx.createGain();
+    o.connect(g);g.connect(ctx.destination);o.type='triangle';
+    o.frequency.setValueAtTime(300,ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(140,ctx.currentTime+0.2);
+    g.gain.setValueAtTime(0.18,ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.22);
+    o.start(ctx.currentTime);o.stop(ctx.currentTime+0.23);
+  },
+  step:function(){_note(523,'sine',0,0.12,0.18);_note(659,'sine',0.08,0.13,0.18);},
+  praise:function(){[523,659,784,1047].forEach(function(f,i){_note(f,'sine',i*0.07,0.14,0.16);});},
+  win:function(){[[523,0,0.22],[659,0.12,0.22],[784,0.24,0.22],[659,0.36,0.18],[1047,0.48,0.35]].forEach(function(n){_note(n[0],'triangle',n[1],n[2],0.2);});},
+  pop:function(){
+    var ctx=ac(),o=ctx.createOscillator(),g=ctx.createGain();
+    o.connect(g);g.connect(ctx.destination);o.type='sine';
+    o.frequency.setValueAtTime(380,ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(640,ctx.currentTime+0.06);
+    g.gain.setValueAtTime(0.14,ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.09);
+    o.start(ctx.currentTime);o.stop(ctx.currentTime+0.1);
+  },
+  star:function(){var f=[1047,1175,1319,1397,1568][Math.floor(Math.random()*5)];_note(f,'sine',0,0.12,0.09);},
+  back:function(){
+    var ctx=ac(),o=ctx.createOscillator(),g=ctx.createGain();
+    o.connect(g);g.connect(ctx.destination);o.type='sine';
+    o.frequency.setValueAtTime(580,ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(180,ctx.currentTime+0.13);
+    g.gain.setValueAtTime(0.11,ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.15);
+    o.start(ctx.currentTime);o.stop(ctx.currentTime+0.16);
+  },
+
+  // ══ ANIMAL & OBJECT SOUNDS ══
+  // 0 🐱 Котик — мяуканье: глайд вверх+вибрато
+  meow:function(){
+    _vibNote(500,'sine',0,0.08,0.18,6,12);
+    _vibNote(680,'sine',0.07,0.28,0.16,5,15);
+    _vibNote(520,'sine',0.25,0.18,0.1,4,10);
+  },
+  // 1 🐟 Рыбка — пузырьки (несколько высоких питчей)
+  fish:function(){
+    [0,0.06,0.13,0.21,0.3].forEach(function(t,i){
+      var f=1200+Math.random()*400;
+      _note(f,'sine',t,0.07,0.08);
+    });
+  },
+  // 2 🚗 Машина — гудок клаксона
+  honk:function(){
+    _note(370,'square',0,0.18,0.22);
+    _note(440,'square',0.12,0.22,0.18);
+    _note(370,'square',0.28,0.1,0.15);
+  },
+  // 3 🦊 Лиса — лай/тявканье
+  fox:function(){
+    _note(520,'sawtooth',0,0.06,0.18);
+    _note(480,'sawtooth',0.1,0.06,0.15);
+    _note(560,'sawtooth',0.2,0.08,0.16);
+  },
+  // 4 🐥 Цыплёнок — писк
+  cheep:function(){
+    _vibNote(1400,'sine',0,0.1,0.15,8,30);
+    _vibNote(1600,'sine',0.12,0.1,0.13,8,30);
+    _vibNote(1500,'sine',0.26,0.12,0.12,7,25);
+  },
+  // 5 🏠 Домик — уютный колокольчик
+  house:function(){
+    [523,659,784,1047].forEach(function(f,i){_note(f,'sine',i*0.1,0.3,0.13);});
+  },
+  // 6 🐤 Уточка — кряканье
+  quack:function(){
+    var ctx=ac(),o=ctx.createOscillator(),g=ctx.createGain();
+    o.connect(g);g.connect(ctx.destination);o.type='sawtooth';
+    o.frequency.setValueAtTime(440,ctx.currentTime);
+    o.frequency.linearRampToValueAtTime(320,ctx.currentTime+0.12);
+    o.frequency.linearRampToValueAtTime(400,ctx.currentTime+0.22);
+    g.gain.setValueAtTime(0.2,ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.28);
+    o.start(ctx.currentTime);o.stop(ctx.currentTime+0.3);
+    // второе кряк
+    var o2=ctx.createOscillator(),g2=ctx.createGain();
+    o2.connect(g2);g2.connect(ctx.destination);o2.type='sawtooth';
+    o2.frequency.setValueAtTime(440,ctx.currentTime+0.35);
+    o2.frequency.linearRampToValueAtTime(310,ctx.currentTime+0.47);
+    g2.gain.setValueAtTime(0.18,ctx.currentTime+0.35);
+    g2.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.55);
+    o2.start(ctx.currentTime+0.35);o2.stop(ctx.currentTime+0.56);
+  },
+  // 7 🐭 Мышка — тонкий писк
+  squeak:function(){
+    var ctx=ac(),o=ctx.createOscillator(),g=ctx.createGain();
+    o.connect(g);g.connect(ctx.destination);o.type='sine';
+    o.frequency.setValueAtTime(1800,ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(2400,ctx.currentTime+0.08);
+    o.frequency.exponentialRampToValueAtTime(1600,ctx.currentTime+0.18);
+    g.gain.setValueAtTime(0.14,ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.22);
+    o.start(ctx.currentTime);o.stop(ctx.currentTime+0.23);
+  },
+  // 8 🐘 Слонёнок — низкий трубный звук
+  elephant:function(){
+    var ctx=ac(),o=ctx.createOscillator(),g=ctx.createGain();
+    o.connect(g);g.connect(ctx.destination);o.type='sawtooth';
+    o.frequency.setValueAtTime(100,ctx.currentTime);
+    o.frequency.linearRampToValueAtTime(220,ctx.currentTime+0.15);
+    o.frequency.linearRampToValueAtTime(160,ctx.currentTime+0.45);
+    g.gain.setValueAtTime(0.25,ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.55);
+    o.start(ctx.currentTime);o.stop(ctx.currentTime+0.56);
+    _noise(0,0.45,0.06,200);
+  },
+  // 9 🐻 Медвежонок — рычание
+  growl:function(){
+    _noise(0,0.35,0.22,180);
+    _note(120,'sawtooth',0,0.35,0.14);
+  },
+  // 10 🐶 Собачка — лай
+  woof:function(){
+    var ctx=ac(),o=ctx.createOscillator(),g=ctx.createGain();
+    o.connect(g);g.connect(ctx.destination);o.type='square';
+    o.frequency.setValueAtTime(320,ctx.currentTime);
+    o.frequency.linearRampToValueAtTime(220,ctx.currentTime+0.1);
+    g.gain.setValueAtTime(0.22,ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.18);
+    o.start(ctx.currentTime);o.stop(ctx.currentTime+0.19);
+    var o2=ctx.createOscillator(),g2=ctx.createGain();
+    o2.connect(g2);g2.connect(ctx.destination);o2.type='square';
+    o2.frequency.setValueAtTime(300,ctx.currentTime+0.22);
+    o2.frequency.linearRampToValueAtTime(200,ctx.currentTime+0.32);
+    g2.gain.setValueAtTime(0.2,ctx.currentTime+0.22);
+    g2.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.4);
+    o2.start(ctx.currentTime+0.22);o2.stop(ctx.currentTime+0.41);
+  },
+  // 12 🐰 Кролик — пружинистый прыжок
+  boing:function(){
+    var ctx=ac(),o=ctx.createOscillator(),g=ctx.createGain();
+    o.connect(g);g.connect(ctx.destination);o.type='sine';
+    o.frequency.setValueAtTime(200,ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(800,ctx.currentTime+0.2);
+    o.frequency.exponentialRampToValueAtTime(400,ctx.currentTime+0.4);
+    g.gain.setValueAtTime(0.2,ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.45);
+    o.start(ctx.currentTime);o.stop(ctx.currentTime+0.46);
+  },
+  // 14 🐇 Зайчик — лёгкий прыжок
+  hop:function(){
+    _note(600,'sine',0,0.06,0.15);
+    _note(900,'sine',0.09,0.06,0.13);
+  },
+  // 15 🦩 Фламинго — флейтовый трель
+  flamingo:function(){
+    [880,1047,880,988,880].forEach(function(f,i){_note(f,'sine',i*0.07,0.09,0.13);});
+  },
+  // 16 ⛵ Кораблик — морской гудок
+  boat:function(){
+    _note(180,'sawtooth',0,0.5,0.2);
+    _note(220,'sawtooth',0.45,0.35,0.15);
+    _noise(0,0.6,0.05,400);
+  },
+  // 17 🐙 Осьминог — бульканье
+  octopus:function(){
+    [0,0.09,0.19,0.3].forEach(function(t){
+      var f=300+Math.random()*200;
+      _note(f,'sine',t,0.1,0.12);
+      _noise(t,0.08,0.06,f);
+    });
+  },
+  // 18 ⛄ Снеговик — зимний перезвон
+  chime:function(){
+    [1047,1319,1568,2093].forEach(function(f,i){_note(f,'sine',i*0.12,0.4,0.11);});
+  }
+};
+
+// ── ANIMAL SOUND MAP ──
+var ANIMAL_SND_BY_IDX={
+  0:function(){SND.meow();},
+  1:function(){SND.fish();},
+  2:function(){SND.honk();},
+  3:function(){SND.fox();},
+  4:function(){SND.cheep();},
+  5:function(){SND.house();},
+  6:function(){SND.quack();},
+  7:function(){SND.squeak();},
+  8:function(){SND.elephant();},
+  9:function(){SND.growl();},
+  10:function(){SND.woof();},
+  11:function(){SND.growl();setTimeout(function(){SND.growl();},280);},
+  12:function(){SND.boing();},
+  13:function(){SND.squeak();setTimeout(function(){SND.squeak();},200);},
+  14:function(){SND.hop();},
+  15:function(){SND.flamingo();},
+  16:function(){SND.boat();},
+  17:function(){SND.octopus();},
+  18:function(){SND.chime();}
+};
+
+var progressStars=document.getElementById('progress-stars');
+var STAR_THRESHOLDS=[25,50,75,100];
+function initProgressStars(){
+  progressStars.innerHTML='';
+  STAR_THRESHOLDS.forEach(function(){
+    var s=document.createElement('span');
+    s.className='progress-star';
+    s.textContent='⭐';
+    progressStars.appendChild(s);
+  });
+}
+function updateProgressBar(pct){
+  progressFill.style.width=pct+'%';
+  var stars=progressStars.children;
+  STAR_THRESHOLDS.forEach(function(thresh,i){
+    if(stars[i]){
+      var wasLit=stars[i].classList.contains('lit');
+      var nowLit=pct>=thresh;
+      stars[i].classList.toggle('lit',nowLit);
+      if(nowLit&&!wasLit)setTimeout(function(){SND.step();},200);
+    }
+  });
+}
+
+var progress={},cur=null,stepIdx=0,subStep=0,drawnPath=[];
+var GN=0,startGx=0,startGy=0,praiseUsed=[],winAnimFrame=null;
+var zoom=1,panX=0,panY=0;
+var pinchActive=false,pinchDist0=0,pinchZoom0=1,pinchMidX=0,pinchMidY=0;
+var drawActive=false,lastPt=null,hintTimer=null;
+
+var sMenu=document.getElementById('screen-menu');
+var sGame=document.getElementById('screen-game');
+var sWin=document.getElementById('screen-win');
+var figList=document.getElementById('fig-list');
+var figListDone=document.getElementById('fig-list-done');
+var lblDone=document.getElementById('lbl-done');
+var menuXpFill=document.getElementById('menu-xp-fill');
+var menuXpCount=document.getElementById('menu-xp-count');
+var menuXpStars=document.getElementById('menu-xp-stars');
+var gameTitle=document.getElementById('game-title');
+var stepInfo=document.getElementById('step-info');
+var stepArrow=document.getElementById('step-arrow');
+var stepText=document.getElementById('step-text');
+var stepHint=document.getElementById('step-hint');
+var stepsRow=document.getElementById('steps-row');
+var progressFill=document.getElementById('progress-fill');
+var praiseEl=document.getElementById('praise');
+var canvasWrap=document.getElementById('canvas-wrap');
+var gridCanvas=document.getElementById('grid-canvas');
+var drawCanvas=document.getElementById('draw-canvas');
+var hintArrow=document.getElementById('hint-arrow');
+var winCanvasFull=document.getElementById('win-canvas-full');
+
+function show(s){
+  [sMenu,sGame,sWin].forEach(function(el){el.classList.add('hidden');});
+  s.classList.remove('hidden');
+}
+
+function makeCard(f){
+  var isDone=(progress[f.idx]||0)>=100;
+  var btn=document.createElement('div');
+  btn.className='fig-btn'+(isDone?' done':'');
+  btn.innerHTML=
+    '<div class="fe">'+f.emoji+'</div>'+
+    '<div class="fl">'+f.name+'</div>'+
+    (isDone
+      ?'<div class="fc" style="color:#a855f7;font-weight:800">✓ '+f.totalSteps+' ходов</div><div class="done-badge">✓</div>'
+      :'<div class="fc">'+f.totalSteps+' ходов</div>')+
+    '<div class="fbar" style="width:'+((progress[f.idx]||0))+'%"></div>';
+  btn.onclick=function(){SND.pop();startGame(f.idx);};
+  return btn;
+}
+
+var XP_MILESTONES=[3,6,10,14,19];
+var XP_POSITIONS=[20,40,60,80,100];
+function buildMenuXp(doneCount){
+  var pct=Math.round(doneCount/ALL.length*100);
+  menuXpFill.style.width=pct+'%';
+  menuXpCount.textContent=doneCount+' / '+ALL.length;
+  if(menuXpStars.children.length===0){
+    XP_MILESTONES.forEach(function(m,i){
+      var ms=document.createElement('div');
+      ms.className='menu-xp-ms';
+      ms.style.left=XP_POSITIONS[i]+'%';
+      ms.innerHTML='<span class="ms-star">⭐</span><div class="ms-tick"></div>';
+      menuXpStars.appendChild(ms);
+    });
+  }
+  Array.from(menuXpStars.children).forEach(function(ms,i){
+    var wasLit=ms.classList.contains('lit');
+    var nowLit=doneCount>=XP_MILESTONES[i];
+    ms.classList.toggle('lit',nowLit);
+    if(nowLit&&!wasLit)setTimeout(function(){SND.step();},200+i*80);
+  });
+}
+
+function buildMenu(){
+  figList.innerHTML='';figListDone.innerHTML='';
+  var done=0,todo=[],doneArr=[];
+  ALL.forEach(function(f){
+    if((progress[f.idx]||0)>=100){doneArr.push(f);done++;}
+    else todo.push(f);
+  });
+  todo.forEach(function(f){figList.appendChild(makeCard(f));});
+  doneArr.forEach(function(f){figListDone.appendChild(makeCard(f));});
+  lblDone.style.display=done>0?'flex':'none';
+  buildMenuXp(done);
+}
+buildMenu();
+
+function computeLayout(f){
+  var x=0,y=0,mnx=0,mny=0,mxx=0,mxy=0;
+  f.steps.forEach(function(s){
+    x+=DIRS[s[0]][0]*s[1];y+=DIRS[s[0]][1]*s[1];
+    if(x<mnx)mnx=x;if(x>mxx)mxx=x;
+    if(y<mny)mny=y;if(y>mxy)mxy=y;
+  });
+  var fw=mxx-mnx,fh=mxy-mny;
+  GN=Math.max(fw+4,fh+4,10);
+  startGx=Math.floor((GN-fw)/2)-mnx;
+  startGy=Math.floor((GN-fh)/2)-mny;
+}
+
+function initCanvas(){
+  var w=canvasWrap.offsetWidth,h=canvasWrap.offsetHeight;
+  if(!w||!h){setTimeout(initCanvas,30);return;}
+  zoom=1;panX=0;panY=0;
+  var dpr=window.devicePixelRatio||1;
+  [gridCanvas,drawCanvas].forEach(function(c){
+    c.width=Math.round(w*dpr);c.height=Math.round(h*dpr);
+    c.style.width=w+'px';c.style.height=h+'px';
+  });
+  drawGrid();drawPath();
+}
+
+function csBase(){return GN>0?Math.min(canvasWrap.offsetWidth,canvasWrap.offsetHeight)/GN:1;}
+function cs(){return csBase()*zoom;}
+function gridOrigin(){
+  var w=canvasWrap.offsetWidth,h=canvasWrap.offsetHeight;
+  var ox=(w-csBase()*GN)/2+panX,oy=(h-csBase()*GN)/2+panY;
+  return{ox:ox,oy:oy};
+}
+function gToC(gx,gy){
+  var o=gridOrigin(),c=cs(),dpr=window.devicePixelRatio||1;
+  return[(o.ox+gx*c)*dpr,(o.oy+gy*c)*dpr];
+}
+function gToPx(gx,gy){
+  var o=gridOrigin(),c=cs();
+  return[o.ox+gx*c,o.oy+gy*c];
+}
+function getGridPt(ex,ey){
+  var rect=drawCanvas.getBoundingClientRect();
+  var o=gridOrigin(),c=cs();
+  return[Math.round((ex-rect.left-o.ox)/c),Math.round((ey-rect.top-o.oy)/c)];
+}
+function clampPan(){
+  var w=canvasWrap.offsetWidth,h=canvasWrap.offsetHeight;
+  var gw=csBase()*GN*zoom,gh=csBase()*GN*zoom;
+  var mx=Math.min(w,h)*0.4;
+  panX=Math.max(-(gw-mx),Math.min(gw-mx,panX));
+  panY=Math.max(-(gh-mx),Math.min(gh-mx,panY));
+}
+
+function drawGrid(){
+  var ctx=gridCanvas.getContext('2d');
+  var W=gridCanvas.width,H=gridCanvas.height;
+  ctx.clearRect(0,0,W,H);
+  if(GN<=0)return;
+  var dpr=window.devicePixelRatio||1;
+  var c=cs()*dpr;
+  var o=gridOrigin();
+  var ox=o.ox*dpr,oy=o.oy*dpr;
+  ctx.save();
+  ctx.strokeStyle='rgba(255,255,255,0.10)';ctx.lineWidth=0.7;
+  for(var i=0;i<=GN;i++){
+    ctx.beginPath();ctx.moveTo(ox+i*c,oy);ctx.lineTo(ox+i*c,oy+GN*c);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(ox,oy+i*c);ctx.lineTo(ox+GN*c,oy+i*c);ctx.stroke();
+  }
+  ctx.strokeStyle='rgba(255,107,179,0.35)';ctx.lineWidth=1.5;
+  ctx.strokeRect(ox+0.75,oy+0.75,GN*c-1.5,GN*c-1.5);
+  ctx.restore();
+  var p=gToC(startGx,startGy);
+  var dotR=Math.max(c*0.22,4*dpr);
+  ctx.globalAlpha=1;ctx.fillStyle='#22c55e';
+  ctx.beginPath();ctx.arc(p[0],p[1],dotR,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,0.9)';ctx.lineWidth=1.5*dpr;
+  ctx.beginPath();ctx.arc(p[0],p[1],dotR,0,Math.PI*2);ctx.stroke();
+}
+
+function drawPath(){
+  var ctx=drawCanvas.getContext('2d');
+  ctx.clearRect(0,0,drawCanvas.width,drawCanvas.height);
+  if(!cur||drawnPath.length<2)return;
+  var c=cs()*(window.devicePixelRatio||1);
+  ctx.strokeStyle=cur.color;ctx.lineWidth=c*0.24;
+  ctx.lineCap='round';ctx.lineJoin='round';
+  ctx.beginPath();
+  var p0=gToC(drawnPath[0][0],drawnPath[0][1]);ctx.moveTo(p0[0],p0[1]);
+  for(var i=1;i<drawnPath.length;i++){var p=gToC(drawnPath[i][0],drawnPath[i][1]);ctx.lineTo(p[0],p[1]);}
+  ctx.stroke();
+}
+
+function startGame(idx){
+  if(winAnimFrame){cancelAnimationFrame(winAnimFrame);winAnimFrame=null;}
+  if(window.speechSynthesis)window.speechSynthesis.cancel();
+  cur=ALL[idx];stepIdx=0;subStep=0;drawnPath=[];praiseUsed=[];
+  computeLayout(cur);
+  show(sGame);
+  gameTitle.textContent=cur.emoji+' '+cur.name;
+  gameTitle.style.color='#ff6bb3';
+  initProgressStars();
+  updateProgressBar(0);
+  buildStepsRow();updateBanner();
+  requestAnimationFrame(function(){requestAnimationFrame(initCanvas);});
+}
+
+function buildStepsRow(){
+  stepsRow.innerHTML='';
+  cur.steps.forEach(function(s,i){
+    var el=document.createElement('span');
+    el.className='s-chip'+(i===0?' cur':'');
+    if(i===0){el.style.color='#ff6bb3';el.style.borderColor='#ff6bb3';}
+    el.textContent=s[1]+ARR[s[0]];el.id='chip-'+i;
+    stepsRow.appendChild(el);
+  });
+}
+
+function updateBanner(){
+  if(stepIdx>=cur.steps.length)return;
+  var s=cur.steps[stepIdx],rem=s[1]-subStep;
+  stepArrow.textContent=ARR[s[0]];
+  stepArrow.style.background='rgba(255,107,179,0.15)';
+  stepArrow.style.color='#ff6bb3';
+  stepArrow.style.borderColor='rgba(255,107,179,0.3)';
+  stepText.textContent=rem+' '+(rem===1?'клетка':rem<5?'клетки':'клеток')+' '+ARR_RU[s[0]];
+  stepHint.textContent='Ход '+(stepIdx+1)+' из '+cur.steps.length;
+  stepInfo.textContent=(stepIdx+1)+' / '+cur.steps.length;
+  updateProgressBar(Math.round(stepIdx/cur.steps.length*100));
+  cur.steps.forEach(function(_,i){
+    var el=document.getElementById('chip-'+i);if(!el)return;
+    if(i<stepIdx){el.className='s-chip done';el.style.color='';el.style.borderColor='';}
+    else if(i===stepIdx){el.className='s-chip cur';el.style.color='#ff6bb3';el.style.borderColor='#ff6bb3';}
+    else{el.className='s-chip';el.style.color='';el.style.borderColor='';}
+  });
+  var chip=document.getElementById('chip-'+stepIdx);
+  if(chip)chip.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+}
+
+function showWrongMove(gx,gy){
+  SND.wrong();
+  stepArrow.classList.remove('shake');void stepArrow.offsetWidth;
+  stepArrow.classList.add('shake');
+  setTimeout(function(){stepArrow.classList.remove('shake');},350);
+  var ctx=drawCanvas.getContext('2d');
+  var c=cs()*(window.devicePixelRatio||1);
+  var pos=getCurrentPos(),p0=gToC(pos[0],pos[1]),p=gToC(gx,gy);
+  ctx.save();
+  ctx.strokeStyle='rgba(255,255,255,0.25)';ctx.lineWidth=c*0.22;
+  ctx.lineCap='round';ctx.setLineDash([c*0.3,c*0.3]);
+  ctx.beginPath();ctx.moveTo(p0[0],p0[1]);ctx.lineTo(p[0],p[1]);ctx.stroke();
+  ctx.setLineDash([]);ctx.restore();
+  setTimeout(drawPath,350);
+  var hp=gToPx(pos[0],pos[1]);
+  hintArrow.textContent=ARR[cur.steps[stepIdx][0]];
+  hintArrow.style.left=hp[0]+'px';hintArrow.style.top=hp[1]+'px';
+  hintArrow.classList.add('show');
+  if(hintTimer)clearTimeout(hintTimer);
+  hintTimer=setTimeout(function(){hintArrow.classList.remove('show');},1200);
+}
+
+function getCurrentPos(){return drawnPath.length?drawnPath[drawnPath.length-1]:[startGx,startGy];}
+
+function tryAdvance(gx,gy){
+  if(stepIdx>=cur.steps.length)return;
+  var pos=getCurrentPos(),dx=gx-pos[0],dy=gy-pos[1];
+  if(dx===0&&dy===0)return;
+  var s=cur.steps[stepIdx];
+  var ex=DIRS[s[0]][0],ey=DIRS[s[0]][1];
+  var ndx=dx===0?0:(dx>0?1:-1);
+  var ndy=dy===0?0:(dy>0?1:-1);
+  if(ndx===ex&&ndy===ey){
+    SND.ping();
+    if(!drawnPath.length)drawnPath.push([startGx,startGy]);
+    drawnPath.push([pos[0]+ex,pos[1]+ey]);
+    subStep++;drawPath();
+    stepArrow.style.transform='scale(1.3)';
+    setTimeout(function(){stepArrow.style.transform='';},140);
+    if(subStep>=s[1]){
+      subStep=0;stepIdx++;
+      if(stepIdx>0&&stepIdx%5===0&&stepIdx<cur.steps.length){
+        var pool=stepIdx>=cur.steps.length*.75?PRAISE_LATE:PRAISE_POOL;
+        if(praiseUsed.length>=pool.length)praiseUsed=[];
+        var avail=pool.filter(function(_,i){return praiseUsed.indexOf(i)<0;});
+        var pick=avail[Math.floor(Math.random()*avail.length)];
+        praiseUsed.push(pool.indexOf(pick));
+        showPraise(pick);
+      }
+      if(stepIdx>=cur.steps.length){showWin();return;}
+    }
+    updateBanner();
+  } else {
+    showWrongMove(gx,gy);
+  }
+}
+
+drawCanvas.addEventListener('touchstart',function(e){
+  e.preventDefault();
+  if(e.touches.length===2){
+    pinchActive=true;drawActive=false;
+    var t0=e.touches[0],t1=e.touches[1];
+    pinchDist0=Math.hypot(t1.clientX-t0.clientX,t1.clientY-t0.clientY);
+    pinchZoom0=zoom;
+    pinchMidX=(t0.clientX+t1.clientX)/2;pinchMidY=(t0.clientY+t1.clientY)/2;
+  } else {
+    pinchActive=false;drawActive=true;
+    var t=e.touches[0];lastPt=getGridPt(t.clientX,t.clientY);
+    if(!drawnPath.length){drawnPath.push([startGx,startGy]);drawPath();}
+  }
+},{passive:false});
+
+drawCanvas.addEventListener('touchmove',function(e){
+  e.preventDefault();
+  if(e.touches.length===2){
+    var t0=e.touches[0],t1=e.touches[1];
+    var dist=Math.hypot(t1.clientX-t0.clientX,t1.clientY-t0.clientY);
+    var nz=Math.max(1,Math.min(4,pinchZoom0*(dist/pinchDist0)));
+    var midX=(t0.clientX+t1.clientX)/2,midY=(t0.clientY+t1.clientY)/2;
+    var rect=drawCanvas.getBoundingClientRect();
+    var cx=midX-rect.left,cy=midY-rect.top;
+    var w=canvasWrap.offsetWidth,h=canvasWrap.offsetHeight;
+    var bOx=(w-csBase()*GN)/2,bOy=(h-csBase()*GN)/2;
+    var gCX=(cx-(bOx+panX))/(csBase()*zoom);
+    var gCY=(cy-(bOy+panY))/(csBase()*zoom);
+    zoom=nz;
+    panX=cx-bOx-gCX*csBase()*zoom+(midX-pinchMidX);
+    panY=cy-bOy-gCY*csBase()*zoom+(midY-pinchMidY);
+    clampPan();drawGrid();drawPath();
+  } else {
+    if(!drawActive||pinchActive)return;
+    var t=e.touches[0],p=getGridPt(t.clientX,t.clientY);
+    if(lastPt&&(p[0]!==lastPt[0]||p[1]!==lastPt[1])){tryAdvance(p[0],p[1]);lastPt=p;}
+  }
+},{passive:false});
+
+drawCanvas.addEventListener('touchend',function(e){
+  if(e.touches.length<2)pinchActive=false;
+  if(e.touches.length===0)drawActive=false;
+},{passive:false});
+
+drawCanvas.addEventListener('click',function(e){
+  if(!drawnPath.length){drawnPath.push([startGx,startGy]);drawPath();}
+  tryAdvance.apply(null,getGridPt(e.clientX,e.clientY));
+});
+
+function showPraise(msg){
+  SND.praise();
+  // Убираем эмодзи для TTS — только текст
+  var textOnly=msg.replace(/[\u{1F300}-\u{1FFFF}]/gu,'')
+                  .replace(/[\u2600-\u27BF]/g,'')
+                  .replace(/\uFE0F/g,'')
+                  .replace(/\s+/g,' ').trim();
+  // Задержка: сначала звук praise, потом голос
+  setTimeout(function(){speak(textOnly);},200);
+  praiseEl.textContent=msg;praiseEl.classList.add('show');spawnStars();
+  setTimeout(function(){praiseEl.classList.remove('show');},2000);
+}
+
+function spawnStars(){
+  var em=['⭐','🌟','✨','💫','🎉','💖','🌸'];
+  for(var i=0;i<7;i++){
+    (function(i){setTimeout(function(){
+      var el=document.createElement('div');el.className='star';
+      el.textContent=em[Math.floor(Math.random()*em.length)];
+      el.style.left=(10+Math.random()*80)+'vw';el.style.top=(15+Math.random()*65)+'vh';
+      el.style.setProperty('--tx',(Math.random()-.5)*160+'px');
+      el.style.setProperty('--ty',(-70-Math.random()*110)+'px');
+      document.body.appendChild(el);
+      setTimeout(function(){SND.star();},i*80);
+      setTimeout(function(){el.remove();},1300);
+    },i*100);})(i);
+  }
+}
+
+function showWin(){
+  progress[cur.idx]=100;
+  updateProgressBar(100);
+  setTimeout(function(){SND.win();},300);
+  setTimeout(function(){
+    document.getElementById('win-emoji').textContent=cur.emoji;
+    document.getElementById('win-title').textContent='Вот что получилось!';
+    document.getElementById('win-sub').textContent='«'+cur.name+'» нарисован за '+cur.totalSteps+' ходов 🎉';
+    var wc=winCanvasFull,W=window.innerWidth,H=window.innerHeight,dpr=window.devicePixelRatio||1;
+    wc.width=Math.round(W*dpr);wc.height=Math.round(H*dpr);
+    wc.style.width=W+'px';wc.style.height=H+'px';
+    var pathPts=[[startGx,startGy]],x=startGx,y=startGy;
+    cur.steps.forEach(function(s){for(var k=0;k<s[1];k++){x+=DIRS[s[0]][0];y+=DIRS[s[0]][1];pathPts.push([x,y]);}});
+    var cs2=Math.min(W,H)/GN,ox=(W-cs2*GN)/2,oy=(H-cs2*GN)/2;
+    function toPx(gx,gy){return[(ox+gx*cs2)*dpr,(oy+gy*cs2)*dpr];}
+    var ctx=wc.getContext('2d'),totalLen=0;
+    for(var i=1;i<pathPts.length;i++){
+      var a=toPx(pathPts[i-1][0],pathPts[i-1][1]),b=toPx(pathPts[i][0],pathPts[i][1]);
+      totalLen+=Math.sqrt(Math.pow(b[0]-a[0],2)+Math.pow(b[1]-a[1],2));
+    }
+    var drawn=0,speed=totalLen/55,phase=0,wobbleT=0;
+    function animate(){
+      ctx.clearRect(0,0,wc.width,wc.height);
+      ctx.fillStyle='#120818';ctx.fillRect(0,0,wc.width,wc.height);
+      ctx.strokeStyle='rgba(255,107,179,0.06)';ctx.lineWidth=0.6;
+      for(var i=0;i<=GN;i++){
+        ctx.beginPath();ctx.moveTo((ox+i*cs2)*dpr,oy*dpr);ctx.lineTo((ox+i*cs2)*dpr,(oy+GN*cs2)*dpr);ctx.stroke();
+        ctx.beginPath();ctx.moveTo(ox*dpr,(oy+i*cs2)*dpr);ctx.lineTo((ox+GN*cs2)*dpr,(oy+i*cs2)*dpr);ctx.stroke();
+      }
+      if(phase===0){
+        drawn=Math.min(drawn+speed,totalLen);
+        ctx.strokeStyle='#ff6bb3';ctx.lineWidth=cs2*dpr*0.22;ctx.lineCap='round';ctx.lineJoin='round';
+        ctx.beginPath();
+        var rem=drawn,pp=toPx(pathPts[0][0],pathPts[0][1]);ctx.moveTo(pp[0],pp[1]);
+        for(var i=1;i<pathPts.length&&rem>0;i++){
+          var pa=toPx(pathPts[i-1][0],pathPts[i-1][1]),pb=toPx(pathPts[i][0],pathPts[i][1]);
+          var sl=Math.sqrt(Math.pow(pb[0]-pa[0],2)+Math.pow(pb[1]-pa[1],2));
+          if(rem>=sl){ctx.lineTo(pb[0],pb[1]);rem-=sl;}
+          else{var t2=rem/sl;ctx.lineTo(pa[0]+(pb[0]-pa[0])*t2,pa[1]+(pb[1]-pa[1])*t2);rem=0;}
+        }
+        ctx.stroke();
+        if(drawn>=totalLen){
+          phase=1;wobbleT=0;spawnStars();spawnStars();
+          // ★ Animal sound fires here, after draw animation completes
+          var sndFn=ANIMAL_SND_BY_IDX[cur.idx];
+          if(sndFn){setTimeout(sndFn,200);}
+          // TTS: «Котик нарисован!»
+          setTimeout(function(){speak(cur.name+' нарисован!');},600);
+        }
+      } else {
+        wobbleT+=0.006;
+        ctx.save();ctx.strokeStyle='#e040fb';ctx.lineWidth=cs2*dpr*0.5;ctx.lineCap='round';ctx.lineJoin='round';ctx.globalAlpha=0.12;
+        ctx.beginPath();var pp2=toPx(pathPts[0][0],pathPts[0][1]);ctx.moveTo(pp2[0],pp2[1]);
+        for(var i=1;i<pathPts.length;i++){var pp3=toPx(pathPts[i][0],pathPts[i][1]);ctx.lineTo(pp3[0],pp3[1]);}
+        ctx.stroke();ctx.restore();
+        ctx.strokeStyle='#ff6bb3';ctx.lineWidth=cs2*dpr*0.22;ctx.lineCap='round';ctx.lineJoin='round';ctx.globalAlpha=1;
+        ctx.beginPath();pp2=toPx(pathPts[0][0],pathPts[0][1]);ctx.moveTo(pp2[0],pp2[1]);
+        for(var i=1;i<pathPts.length;i++){pp3=toPx(pathPts[i][0],pathPts[i][1]);ctx.lineTo(pp3[0],pp3[1]);}
+        ctx.stroke();
+        var sparkPos=(wobbleT%1)*totalLen,rem3=sparkPos,sparkX=0,sparkY=0;
+        for(var i=1;i<pathPts.length;i++){
+          var pa2=toPx(pathPts[i-1][0],pathPts[i-1][1]),pb2=toPx(pathPts[i][0],pathPts[i][1]);
+          var sl2=Math.sqrt(Math.pow(pb2[0]-pa2[0],2)+Math.pow(pb2[1]-pa2[1],2));
+          if(rem3<=sl2){var t3=rem3/sl2;sparkX=pa2[0]+(pb2[0]-pa2[0])*t3;sparkY=pa2[1]+(pb2[1]-pa2[1])*t3;break;}
+          rem3-=sl2;
+        }
+        var grad=ctx.createRadialGradient(sparkX,sparkY,0,sparkX,sparkY,cs2*dpr*1.0);
+        grad.addColorStop(0,'rgba(255,255,255,1)');grad.addColorStop(0.25,'#ff6bb3');grad.addColorStop(1,'rgba(0,0,0,0)');
+        ctx.beginPath();ctx.arc(sparkX,sparkY,cs2*dpr*1.0,0,Math.PI*2);ctx.fillStyle=grad;ctx.globalAlpha=0.9;ctx.fill();
+        ctx.beginPath();ctx.arc(sparkX,sparkY,cs2*dpr*0.15,0,Math.PI*2);ctx.fillStyle='#fff';ctx.globalAlpha=1;ctx.fill();
+      }
+      winAnimFrame=requestAnimationFrame(animate);
+    }
+    show(sWin);winAnimFrame=requestAnimationFrame(animate);
+  },300);
+}
+
+document.getElementById('back-btn').onclick=function(){
+  SND.back();
+  if(window.speechSynthesis)window.speechSynthesis.cancel();
+  if(winAnimFrame){cancelAnimationFrame(winAnimFrame);winAnimFrame=null;}
+  show(sMenu);buildMenu();
+};
+document.getElementById('retry-btn').onclick=function(){SND.pop();startGame(cur.idx);};
+document.getElementById('menu-btn2').onclick=function(){
+  SND.back();
+  if(window.speechSynthesis)window.speechSynthesis.cancel();
+  if(winAnimFrame){cancelAnimationFrame(winAnimFrame);winAnimFrame=null;}
+  show(sMenu);buildMenu();
+};
+
+if(window.ResizeObserver){
+  new ResizeObserver(function(){
+    if(!sGame.classList.contains('hidden')&&canvasWrap.offsetWidth>0)initCanvas();
+  }).observe(canvasWrap);
+}
+
+})();
+</script>
+</body>
+</html>
